@@ -7,8 +7,26 @@ browseql is a terminal-based database management tool built with Go and Bubble T
 - Go 1.19+
 - SQLite3 development libraries
 
+## 🌟 Supported Databases
+
+- 🚧 SQLite (planned)
+- 🚧 PostgreSQL (planned)
+- 🚧 MySQL (planned)
+- 🚧 MongoDB (planned)
+- 🚧 Redis (planned)
+
+## 📝 Todo & Roadmap
+
+- [ ] Data editing capabilities
+- [ ] Export to CSV/JSON
+- [ ] Query history
+- [ ] Table schema viewer
+- [ ] Multiple result tabs
+- [ ] Plugin system
+
 ## 📄 License
-This project is licensed under the MIT License - see the LICENSE file for details.
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 - [Bubble Tea](https://github.com/charmbracelet/bubbletea) for the amazing TUI framework
