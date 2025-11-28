@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"fmt"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -51,4 +52,55 @@ func (m *DBManager) GetTables() ([]string, error) {
         tables = append(tables, name)
     }
     return tables, nil
+}
+
+// Add to DBManager
+func (m *DBManager) GetTableData(tableName string, limit int) ([][]string, []string, error) {
+    // Get column names
+    query := fmt.Sprintf("SELECT * FROM %s LIMIT 1", tableName)
+    rows, err := m.db.Query(query)
+    if err != nil {
+        return nil, nil, err
+    }
+    defer rows.Close()
+
+    columns, err := rows.Columns()
+    if err != nil {
+        return nil, nil, err
+    }
+
+    // Get data
+    query = fmt.Sprintf("SELECT * FROM %s LIMIT ?", tableName)
+    dataRows, err := m.db.Query(query, limit)
+    if err != nil {
+        return nil, nil, err
+    }
+    defer dataRows.Close()
+
+    var data [][]string
+    data = append(data, columns) // Headers as first row
+
+    for dataRows.Next() {
+        values := make([]interface{}, len(columns))
+        valuePtrs := make([]interface{}, len(columns))
+        for i := range columns {
+            valuePtrs[i] = &values[i]
+        }
+
+        if err := dataRows.Scan(valuePtrs...); err != nil {
+            return nil, nil, err
+        }
+
+        row := make([]string, len(columns))
+        for i, val := range values {
+            if val == nil {
+                row[i] = "NULL"
+            } else {
+                row[i] = fmt.Sprintf("%v", val)
+            }
+        }
+        data = append(data, row)
+    }
+
+    return data, columns, nil
 }
