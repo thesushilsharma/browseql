@@ -1,11 +1,12 @@
 package app
 
 import (
-	"browseql/internal/database"
-	"browseql/internal/ui"
 	"fmt"
+	// "os"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"browseql/internal/database"
+	"browseql/internal/ui"
 )
 
 type App struct {
@@ -17,17 +18,26 @@ func NewApp(dbPath string) *App {
 }
 
 func (a *App) Run() error {
+	// Initialize database connection
 	dbManager, err := database.NewManager(a.dbPath)
 	if err != nil {
 		return fmt.Errorf("failed to connect to database: %w", err)
 	}
 	defer dbManager.Close()
 
+	// Initialize the UI model
 	model := ui.NewModel(dbManager)
-	p := tea.NewProgram(model)
+
+	// Start the Bubble Tea program
+	p := tea.NewProgram(
+		model,
+		tea.WithAltScreen(),       // Use alternate screen buffer
+		tea.WithMouseCellMotion(), // Enable mouse support
+	)
 
 	if _, err := p.Run(); err != nil {
 		return fmt.Errorf("program error: %w", err)
 	}
+
 	return nil
 }
