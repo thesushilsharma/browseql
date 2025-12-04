@@ -326,16 +326,21 @@ func (m model) renderTables() string {
 }
 
 func (m model) renderData() string {
-	var s strings.Builder
-	// Simplified fmt.Sprintf usage
-	title := fmt.Sprintf("📊 Table: %s (%d rows)", m.selectedTable, len(m.tableData)-1)
-	s.WriteString(titleStyle.Render(title))
-	s.WriteString("\n\n")
-	
-	s.WriteString(m.viewport.View())
-	
-	s.WriteString("\n" + m.renderHelp())
-	return s.String()
+    var s strings.Builder
+    s.WriteString(titleStyle.Render(fmt.Sprintf("Table: %s (%d rows)", 
+        m.selectedTable, len(m.tableData)-1)))
+    s.WriteString("\n\n")
+    
+    if len(m.tableData) > 0 {
+        tableContent := formatTable(m.headers, m.tableData, m.width-4)
+        m.viewport.SetContent(tableContent)
+        s.WriteString(m.viewport.View())
+    } else {
+        s.WriteString("No data available")
+    }
+    
+    s.WriteString("\n" + m.renderHelp())
+    return s.String()
 }
 
 func (m model) renderQuery() string {
@@ -431,12 +436,4 @@ func (m *model) updateViewport() {
 	}
 	
 	m.viewport.SetContent(content.String())
-}
-
-// Utility function
-func padString(s string, width int) string {
-	if len(s) > width {
-		return s[:width-3] + "..."
-	}
-	return s + strings.Repeat(" ", width-len(s))
 }
