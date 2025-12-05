@@ -18,6 +18,11 @@ type tablesLoadedMsg struct {
 	tables []string
 }
 
+// Add loading states to messages
+type loadingMsg struct {
+    message string
+}
+
 type dataLoadedMsg struct {
 	tableName string
 	headers   []string
@@ -150,6 +155,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.updateViewport()
 		return m, nil
 
+	case loadingMsg:
+		m.loading = true
+		m.errorMsg = ""
+
 	case errorMsg:
 		m.loading = false
 		m.errorMsg = msg.message
@@ -186,13 +195,16 @@ func (m model) View() string {
 // ====================
 
 func (m *model) loadTables() tea.Cmd {
-	return func() tea.Msg {
-		tables, err := m.dbManager.GetTables()
-		if err != nil {
-			return errorMsg{message: err.Error()}
-		}
-		return tablesLoadedMsg{tables: tables}
-	}
+    return tea.Batch(
+        func() tea.Msg { return loadingMsg{message: "Loading tables..."} },
+        func() tea.Msg {
+            tables, err := m.dbManager.GetTables()
+            if err != nil {
+                return errorMsg{message: err.Error()}
+            }
+            return tablesLoadedMsg{tables: tables}
+        },
+    )
 }
 
 func (m *model) loadTableData(tableName string) tea.Cmd {
@@ -289,7 +301,7 @@ func (m model) renderLoading() string {
 	var s strings.Builder
 	s.WriteString(titleStyle.Render("🗄️ BrowseQL"))
 	s.WriteString("\n\n")
-	s.WriteString("Loading...")
+	s.WriteString("Loading... ⣾")
 	s.WriteString("\n\n")
 	s.WriteString(helpStyle.Render("q: Quit"))
 	return s.String()
