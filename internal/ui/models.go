@@ -374,16 +374,18 @@ func (m model) renderQuery() string {
 }
 
 func (m model) renderHelp() string {
-	switch m.mode {
-	case "tables":
-		return helpStyle.Render("↑↓: Navigate • Enter: Select • :: Query • q: Quit")
-	case "data":
-		return helpStyle.Render("↑↓: Scroll • r: Refresh • Esc: Back • :: Query • q: Quit")
-	case "query":
-		return helpStyle.Render("Enter: Execute • Esc: Cancel • q: Quit")
-	default:
-		return helpStyle.Render("q: Quit")
-	}
+    baseHelp := "q: Quit • "
+    
+    switch m.mode {
+    case "tables":
+        return baseHelp + "↑↓: Navigate • Enter: Select table • :: SQL query"
+    case "data":
+        return baseHelp + "↑↓: Scroll • Esc: Back to tables • r: Refresh"
+    case "query":
+        return baseHelp + "Enter: Execute • Esc: Cancel"
+    default:
+        return baseHelp
+    }
 }
 
 func (m *model) updateViewport() {
